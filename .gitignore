@@ -3,3 +3,4 @@
 *.pyc
 py2_virtualenv
 *.h5
+*.png
