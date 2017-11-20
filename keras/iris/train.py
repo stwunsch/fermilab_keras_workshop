@@ -51,7 +51,7 @@ model.compile(
 # Train
 history = model.fit(inputs, targets_onehot, batch_size=20, epochs=10)
 
-# Validate
+# Calculate accuracy
 predictions = model.predict(inputs)
 predictions_argmax = np.argmax(predictions, axis=1)
 accuracy = np.sum(predictions_argmax==targets)/float(inputs.shape[0])
