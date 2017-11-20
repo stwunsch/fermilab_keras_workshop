@@ -2,3 +2,4 @@
 *.swo
 *.pyc
 py2_virtualenv
+*.h5
