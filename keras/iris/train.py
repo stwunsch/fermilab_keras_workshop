@@ -63,14 +63,14 @@ history = model.fit(
         batch_size=20,
         epochs=10)
 
-# Calculate accuracy
+# Calculate accuracy manually
 predictions = model.predict(inputs)
 predictions_argmax = np.argmax(predictions, axis=1)
 accuracy = np.sum(predictions_argmax==targets)/float(inputs.shape[0])
 print("Accuracy on full dataset: {}".format(accuracy))
 
-# Save model and preprocessing object
-model.save("weights.h5")
+# Save model
+model.save("iris_model.h5")
 
 # Plot loss and accuracy over epochs
 loss = history.history['loss']
