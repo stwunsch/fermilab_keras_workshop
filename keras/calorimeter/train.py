@@ -6,7 +6,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-# Select Theano as backend for Keras
+# Select TensorFlow as backend for Keras
 from os import environ
 environ["KERAS_BACKEND"] = "tensorflow"
 
@@ -18,7 +18,6 @@ from keras.models import Sequential
 from keras.layers.core import Dense
 from keras.optimizers import Adam
 
-from sklearn.datasets import load_iris
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 

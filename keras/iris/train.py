@@ -4,7 +4,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-# Select Theano as backend for Keras
+# Select TensorFlow as backend for Keras
 from os import environ
 environ["KERAS_BACKEND"] = "tensorflow"
 
