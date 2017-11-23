@@ -24,7 +24,7 @@ targets = np.array(file_["targets"])
 
 # Shallow neural network
 model_shallow = Sequential()
-model_shallow.add(Dense(300, kernel_initializer="glorot_normal", activation="relu",
+model_shallow.add(Dense(1000, kernel_initializer="glorot_normal", activation="tanh",
     input_dim=inputs.shape[1]))
 model_shallow.add(Dense(1, kernel_initializer="glorot_uniform", activation="sigmoid"))
 
@@ -32,6 +32,8 @@ model_shallow.add(Dense(1, kernel_initializer="glorot_uniform", activation="sigm
 model_deep = Sequential()
 model_deep.add(Dense(300, kernel_initializer="glorot_normal", activation="relu",
     input_dim=inputs.shape[1]))
+model_deep.add(Dense(300, kernel_initializer="glorot_normal", activation="relu"))
+model_deep.add(Dense(300, kernel_initializer="glorot_normal", activation="relu"))
 model_deep.add(Dense(300, kernel_initializer="glorot_normal", activation="relu"))
 model_deep.add(Dense(300, kernel_initializer="glorot_normal", activation="relu"))
 model_deep.add(Dense(1, kernel_initializer="glorot_uniform", activation="sigmoid"))
@@ -45,7 +47,7 @@ for model in [model_shallow, model_deep]:
 
 # Split dataset in training and testing
 inputs_train, inputs_test, targets_train, targets_test = train_test_split(
-        inputs, targets, test_size=0.75, random_state=1234)
+        inputs, targets, test_size=0.90, random_state=1234, shuffle=True)
 
 # Set up preprocessing
 preprocessing_input = StandardScaler()
@@ -54,13 +56,13 @@ preprocessing_input.fit(inputs_train)
 # Train
 for model in [model_shallow, model_deep]:
     model.fit(
-            preprocessing_input.transform(inputs),
-            targets,
+            preprocessing_input.transform(inputs_train),
+            targets_train,
             batch_size=100,
-            epochs=100,
+            epochs=10,
             validation_split=0.25)
 
 # Save preprocessing and models
 pickle.dump(preprocessing_input, open("HIGGS_preprocessing.pickle", "wb"))
 for model, name in zip([model_shallow, model_deep], ["HIGGS_shallow.h5", "HIGGS_deep.h5"]):
-    mode.save(name)
+    model.save(name)
