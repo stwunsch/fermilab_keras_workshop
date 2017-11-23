@@ -32,6 +32,6 @@ with tf.Session() as sess:
     y_out = sess.run(y, feed_dict={x:x_in})
 
 # Print network response
-print("{:8<} : {}".format("Input", "Output"))
+print("{} : {}".format("Input", "Output"))
 for x_, y_ in zip(x_in, y_out):
-    print("{:8<} : {}".format(x_, np.squeeze(y_)))
+    print("{} : {}".format(x_, np.squeeze(y_)))
