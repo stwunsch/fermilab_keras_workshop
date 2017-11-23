@@ -10,11 +10,14 @@ environ["KERAS_BACKEND"] = "tensorflow"
 
 import numpy as np
 np.random.seed(1234)
-from sklearn.datasets import load_iris
+
 from keras.utils import np_utils
 from keras.models import Sequential
 from keras.layers.core import Dense
 from keras.optimizers import SGD
+
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
 
 # Load iris dataset
 dataset = load_iris()
@@ -48,8 +51,17 @@ model.compile(
         optimizer=SGD(lr=0.10),
         metrics=["accuracy",])
 
+# Set up preprocessing
+preprocessing = StandardScaler()
+preprocessing.fit(inputs)
+inputs = preprocessing.transform(inputs)
+
 # Train
-history = model.fit(inputs, targets_onehot, batch_size=20, epochs=10)
+history = model.fit(
+        inputs,
+        targets_onehot,
+        batch_size=20,
+        epochs=10)
 
 # Calculate accuracy
 predictions = model.predict(inputs)
@@ -57,7 +69,7 @@ predictions_argmax = np.argmax(predictions, axis=1)
 accuracy = np.sum(predictions_argmax==targets)/float(inputs.shape[0])
 print("Accuracy on full dataset: {}".format(accuracy))
 
-# Save model
+# Save model and preprocessing object
 model.save("weights.h5")
 
 # Plot loss and accuracy over epochs
