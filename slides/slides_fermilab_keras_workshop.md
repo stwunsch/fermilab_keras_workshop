@@ -1109,9 +1109,93 @@ model.add(Dense(1, activation="linear"))
 
 ## Deep Learning on the HIGGS Dataset
 
-TODO
+One of the most often cited papers about deep learning in combination with a physics application:
+
+> **Searching for Exotic Particles in High-Energy Physics with Deep Learning**\
+Pierre Baldi, Peter Sadowski, Daniel Whiteson
+
+\vfill
+
+- **Topic:** Application of deep neural networks for separation of signal and background in an exotic Higgs scenario
+
+\vfill
+
+- **Results:** Deep learning neural networks are more powerful than "shallow" neural networks with only a single hidden layer.
+
+\vfill
+
+**Let's reproduce this with minimal effort using Keras!**
 
 ## Deep Learning on the HIGGS Dataset (2)
+
+\small
+
+**Files:**
+
+\footnotesize
+
+- `fermilab_keras_tutorial/keras/HIGGS/train.py`
+- `fermilab_keras_tutorial/keras/HIGGS/test.py`
+
+\vfill
+
+\small
+
+**Dataset:**
+
+\footnotesize
+
+- Number of events: 11M
+- Number of features: 28
+
+\vfill
+
+\small
+
+**Shallow model:**
+
+\tiny
+
+```python
+model_shallow = Sequential()
+model_shallow.add(Dense(1000, activation="tanh", input_dim=(28,)))
+model_shallow.add(Dense(1, activation="sigmoid"))
+```
+
+\vfill
+
+\small
+
+**Deep model:**
+
+\tiny
+
+```python
+model_deep = Sequential()
+model_deep.add(Dense(300, activation="relu", input_dim=(28,)))
+model_deep.add(Dense(300, activation="relu"))
+model_deep.add(Dense(300, activation="relu"))
+model_deep.add(Dense(300, activation="relu"))
+model_deep.add(Dense(300, activation="relu"))
+model_deep.add(Dense(1, activation="sigmoid"))
+```
+
+\small
+
+**Training:**
+
+\tiny
+
+```python
+model.compile(loss="binary_crossentropy", optimizer=Adam(), metrics=["accuracy"])
+```
+
+```python
+model.fit(preprocessed_inputs, targets,
+    batch_size=100, epochs=10, validation_split=0.25)
+```
+
+## Deep Learning on the HIGGS Dataset (3)
 
 \footnotesize
 
