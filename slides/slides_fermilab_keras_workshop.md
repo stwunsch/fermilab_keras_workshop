@@ -1071,6 +1071,75 @@ Predict labels for images:
 \includegraphics[width=0.07\textwidth]{figures/example_mnist_9.png}
 \end{figure}
 
+# Examples with Physics Data
+
+## Toy Calorimeter
+
+\footnotesize
+
+- Data represent measurements in a toy-calorimeter
+    - \footnotesize \textbf{Inputs:} 13 calorimeter layers with energy deposits
+    - **Target:** Reconstruction of total energy deposit
+- Example in repository: `fermilab_keras_tutorial/keras/calorimeter/train.py`
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=0.45\textwidth]{figures/calorimeter_layer.png}\hspace{5mm}%
+\includegraphics[width=0.45\textwidth]{figures/calorimeter_predictions.png}
+\end{figure}
+
+\vfill
+
+**Implemented regression model:**
+
+\tiny
+
+```python
+model = Sequential()
+model.add(Dense(100, activation="tanh", input_dim=(13,)))
+model.add(Dense(1, activation="linear"))
+```
+\footnotesize
+
+\vfill
+
+- **Source:** [\color{blue}{Link}](https://www.hep1.physik.uni-bonn.de/people/homepages/tmva/tmvatutorial)
+
+## Deep Learning on the HIGGS Dataset
+
+TODO
+
+## Deep Learning on the HIGGS Dataset (2)
+
+\footnotesize
+
+- Weights of deep and shallow model are part of the repository.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.36\textwidth]{figures/baldi_roc.png}\hspace{5mm}%
+\includegraphics[width=0.35\textwidth]{figures/HIGGS_roc.png}
+\end{figure}
+
+- Shallow model matches performance in the paper, but deep model can be improved.\
+    $\rightarrow$ **Try to improve it!** But you'll need a decent GPU...
+
+\vfill
+
+- Keras allows to **reproduce this result with a total of 130 lines of code**:
+
+\tiny
+
+```
+# Count lines of code
+$ wc -l keras/HIGGS/*.py
+  62 keras/HIGGS/test.py
+  68 keras/HIGGS/train.py
+ 130 total
+```
+
 # Backup
 
 ## Outline
