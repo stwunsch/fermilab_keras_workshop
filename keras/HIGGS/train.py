@@ -49,9 +49,10 @@ for model in [model_shallow, model_deep]:
 inputs_train, inputs_test, targets_train, targets_test = train_test_split(
         inputs, targets, test_size=0.90, random_state=1234, shuffle=True)
 
-# Set up preprocessing
+# Set up preprocessing and serialize to file
 preprocessing_input = StandardScaler()
 preprocessing_input.fit(inputs_train)
+pickle.dump(preprocessing_input, open("HIGGS_preprocessing.pickle", "wb"))
 
 # Train
 for model in [model_shallow, model_deep]:
@@ -62,7 +63,6 @@ for model in [model_shallow, model_deep]:
             epochs=10,
             validation_split=0.25)
 
-# Save preprocessing and models
-pickle.dump(preprocessing_input, open("HIGGS_preprocessing.pickle", "wb"))
+# Save models
 for model, name in zip([model_shallow, model_deep], ["HIGGS_shallow.h5", "HIGGS_deep.h5"]):
     model.save(name)
