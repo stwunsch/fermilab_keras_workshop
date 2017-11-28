@@ -1224,6 +1224,221 @@ $ wc -l keras/HIGGS/*.py
  130 total
 ```
 
+# Useful Tools In Combination With Keras
+
+# TMVA Keras Interface
+
+## Prerequisites
+
+- **Keras inteface integrated in ROOT/TMVA since v6.08**
+
+\vfill
+
+- Example for this tutorial is placed here: `fermilab_keras_tutorial/tmva/`
+
+\vfill
+
+- You need ROOT with enabled PyROOT bindings. Easiest way to test the example is using CERN's **lxplus** machines:
+    - `ssh -Y you@lxplus.cern.ch`
+    - Source software stack 91
+
+\vfill
+
+\
+
+How to source LCG 91 on lxplus:
+
+\vfill
+
+\tiny
+
+`source /cvmfs/sft.cern.ch/lcg/views/LCG_91/x86_64-slc6-gcc62-opt/setup.sh`
+
+## Why do we want a Keras interface in TMVA?
+
+1. **Fair comparison** with other methods
+    - Same preprocessing
+    - Same evaluation
+
+\vfill
+
+2. **Try state-of-the-art DNN performance in existing analysis**/application that is already using TMVA
+
+\vfill
+
+3. **Access data** in **ROOT files** easily
+
+\vfill
+
+4. Integrate Keras in your **application** using **C++**
+
+\vfill
+
+5. **Latest DNN algorithms in the ROOT** framework with **minimal effort**
+
+## How does the interface work?
+
+1. **Model definition** done in **Python** using **Keras**
+2. **Data management**, **training** and **evaluation** within the TMVA framework
+3. **Application** using the TMVA reader or plain Keras
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{figures/tmva_logo.png}
+\end{figure}
+
+\vfill
+
+- The interface is implemented in the optional **PyMVA** part of TMVA:
+
+```python
+# Enable PyMVA
+ROOT.TMVA.PyMethodBase.PyInitialize()
+```
+
+## Example Setup
+
+- **Dataset** of this example is standard ROOT/TMVA test dataset for binary classification
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{figures/tmva_vars.pdf}
+\end{figure}
+
+## Model Definition
+
+- Setting up the model does not differ from using plain Keras:
+
+\tiny
+
+```python
+model = Sequential()
+model.add(Dense(64, init='glorot_normal', activation='relu', input_dim=4))
+model.add(Dense(2, init='glorot_uniform', activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy',])
+model.save('model.h5')
+```
+
+\vfill
+
+\normalsize
+
+- For **binary classification** the model needs **two output nodes**:
+
+```python
+model.add(Dense(2, activation='softmax'))
+```
+
+\vfill
+
+- For **multi-class classification** the model needs **two or more output nodes**:
+
+```python
+model.add(Dense(5, activation='softmax'))
+```
+
+\vfill
+
+- For **regression** the model needs a **single output node**:
+
+```python
+model.add(Dense(1, activation='linear'))
+```
+
+## Training
+
+- **Training options** defined in the **TMVA booking options**:
+
+\small
+
+```python
+factory.BookMethod(dataloader, TMVA.Types.kPyKeras, 'PyKeras',
+        'H:V:VarTransform=G:'+
+        'Verbose=1'+\ # Training verbosity
+        'FilenameModel=model.h5:'+\ # Model from definition
+        'FilenameTrainedModel=modelTrained.h5:'+\ # Optional!
+        'NumEpochs=10:'+\
+        'BatchSize=32'+\
+        'ContinueTraining=false'+\ # Load trained model again
+        'SaveBestOnly=true'+\ # Callback: Model checkpoint
+        'TriesEarlyStopping=5'+\ # Callback: Early stopping
+        'LearningRateSchedule=[10,0.01; 20,0.001]')
+```
+
+\vfill
+
+\normalsize
+
+**That's it! You are ready to run!**
+
+```bash
+python BinaryClassification.py
+```
+
+\vfill
+
+**Run TMVA GUI** to examine results: `root -l TMVAGui.C`
+
+## Training Results: ROC
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/tmva_roc.pdf}
+\end{figure}
+
+## Training Results: Overtraining Check
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/tmva_overtrain.pdf}
+\end{figure}
+
+## Application
+
+- **Does not differ from any other TMVA method!**
+
+\vfill
+
+- **Example** application is set up here: `example_tmva/ApplicationBinaryClassification.py`
+
+\vfill
+
+- You can use **plain Keras** as well, just load the file from the option `FilenameTrainedModel=trained_model.h5`.
+
+\vfill
+
+```python
+model = keras.models.load_model('trained_model.h5')
+prediction = model.predict(some_numpy_array)
+```
+
+## Application (2)
+
+Run `python ApplicationBinaryClassification.py`:
+
+\vfill
+
+\tiny
+
+```bash
+# Response of TMVA Reader
+                         : Booking "PyKeras" of type "PyKeras" from
+                         : BinaryClassificationKeras/weights/TMVAClassification_PyKeras.weights.xml.
+Using Theano backend.
+DataSetInfo              : [Default] : Added class "Signal"
+DataSetInfo              : [Default] : Added class "Background"
+                         : Booked classifier "PyKeras" of type: "PyKeras"
+                         : Load model from file:
+                         : BinaryClassificationKeras/weights/TrainedModel_PyKeras.h5
+
+# Average response of MVA method on signal and background
+Average response on signal:     0.78
+Average response on background: 0.21
+```
+
+
 # Backup
 
 ## Outline
