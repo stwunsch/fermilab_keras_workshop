@@ -86,7 +86,6 @@ if __name__ == "__main__":
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Flatten())
     model.add(Dense(16, activation="relu"))
-    model.add(Dropout(0.5))
 
     # Output layer
     model.add(Dense(10, activation="softmax"))
@@ -113,8 +112,9 @@ if __name__ == "__main__":
     model.fit(x_train, y_train, # Training data
             batch_size=100, # Batch size
             epochs=10, # Number of training epochs
-            validation_split=0.2, # Use 20% of the train dataset for validation
-            callbacks=[checkpoint]) # Register callbacks
+            validation_split=0.5, # Use 50% of the train dataset for validation
+            callbacks=[checkpoint], # Register callbacks
+            shuffle=True)
 
     """
     Test

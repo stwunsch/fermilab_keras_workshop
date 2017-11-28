@@ -947,6 +947,91 @@ def generator_function():
 model.fit_generator(generator_function, ...)
 ```
 
+## Application on Handwritten Digits
+
+- **PNG images of handwritten digits** are placed in `fermilab_keras_tutorial/keras/mnist/example_images/`, have a look!
+
+\begin{figure}
+\centering
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_0.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_1.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_2.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_3.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_4.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_5.png}
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_6.png}
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_7.png}
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_8.png}
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_9.png}
+\end{figure}
+
+\vfill
+
+- Let's **apply our trained model** on the images:
+
+```bash
+./keras/mnist/apply.py keras/mnist/example_images/*.png
+```
+
+\vfill
+
+- **If you are bored on your way home:**
+    1. Open with GIMP `your_own_digit.xcf`
+    2. Dig out your most beautiful handwriting
+    3. Save as PNG and run your model on it
+
+## Application on Handwritten Digits (2)
+
+\small
+
+```bash
+Predict labels for images:
+    keras/mnist/example_images/example_input_0.png : 7
+    keras/mnist/example_images/example_input_1.png : 2
+    keras/mnist/example_images/example_input_2.png : 1
+    keras/mnist/example_images/example_input_3.png : 0
+    keras/mnist/example_images/example_input_4.png : 4
+    keras/mnist/example_images/example_input_5.png : 1
+    keras/mnist/example_images/example_input_6.png : 4
+    keras/mnist/example_images/example_input_7.png : 9
+    keras/mnist/example_images/example_input_8.png : 8
+    keras/mnist/example_images/example_input_9.png : 9
+```
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_0.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_1.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_2.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_3.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_4.png}%
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_5.png}
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_6.png}
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_7.png}
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_8.png}
+\hspace{1mm}%
+\includegraphics[width=0.07\textwidth]{figures/example_mnist_9.png}
+\end{figure}
+
 # Backup
 
 ## Outline
@@ -1199,7 +1284,6 @@ model.add(Convolution2D(
 model.add(MaxPooling2D(pool_size=(2,2)))
 model.add(Flatten())
 model.add(Dense(16, activation='relu'))
-model.add(Dropout(0.5))
 
 # Output layer
 model.add(Dense(10, activation='softmax'))
