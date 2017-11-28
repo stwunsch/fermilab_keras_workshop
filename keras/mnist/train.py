@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     # First hidden layer
     model.add(Conv2D(
-            4, # Number of output filter or so-called feature maps
+            4, # Number of kernels
             (3, # column size of sliding window used for convolution
             3), # row size of sliding window used for convolution
             activation="relu", # Rectified linear unit activation
@@ -106,7 +106,8 @@ if __name__ == "__main__":
     # Set up callbacks
     checkpoint = ModelCheckpoint(
             filepath="mnist_example.h5",
-            save_best_only=True)
+            save_best_only=True,
+            verbose=1)
 
     # Train
     model.fit(x_train, y_train, # Training data

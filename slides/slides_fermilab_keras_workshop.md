@@ -29,15 +29,16 @@ The workshop has these parts:
 2. Brief introduction to **computational graphs** with TensorFlow
 3. Introduction to **Keras**
 4. **Useful tools** in combination with Keras
-5. **Hands-on** examples
+
+- In parts 3 and 4, you have to possibility to follow along with the examples on you laptop.
 
 \vfill
 
 **Assumptions** of the tutorial:
 
-- You are not a neural network expert.
+- You are not a neural network expert, but you know roughly how they work.
 - You haven't used Keras before.
-- You want to know why Keras is so popular and how it works!
+- You want to know why Keras is so popular and how you can use it!
 
 \vfill
 
@@ -65,7 +66,7 @@ The workshop has these parts:
 
 - **Why do we need to know this?** \
     $\rightarrow$ Keras backends TensorFlow and Theano implement these mathematical operations explicitely. \
-    $\rightarrow$ Basic knowledge to understand Keras high-level layers
+    $\rightarrow$ Basic knowledge to understand Keras' high-level layers
 
 \vfill
 
@@ -117,7 +118,7 @@ f_\mathrm{NN} = \sigma_2\left(\begin{bmatrix} b_{1,1}^2 \end{bmatrix}+\begin{bma
 - **How many parameters can be altered during training?** \
     $\rightarrow$ 1+2+2+4=9 parameters
 
-## Training
+## Training (Short Reminder)
 
 \begin{figure}
 \centering
@@ -284,7 +285,7 @@ b2 = tensorflow.get_variable("b2", initializer=np.array([0.0]))
 
 x = tensorflow.placeholder(tensorflow.float64)
 hidden_layer = tensorflow.nn.relu(b1 + tensorflow.matmul(x, w1))
-y = b2 + tensorflow.matmul(hidden_layer, w2)
+y = tensorflow.identity(b2 + tensorflow.matmul(hidden_layer, w2))
 
 with tensorflow.Session() as sess:
     sess.run(tensorflow.global_variables_initializer())
@@ -309,6 +310,642 @@ $\rightarrow$ **Already quite complicated for such a simple model!**
 - **Solution 2:** Use wrapper such as Keras with predefined layers, loss functions, ...
 
 # Introduction to Keras
+
+## What is Keras?
+
+- Most popular tool to train and apply (deep) neural networks
+- **Python wrapper around multiple numerical computation libaries**, e.g., TensorFlow
+- Hides most of the low-level operations that you don't want to care about.
+- **Sacrificing little functionality** for much easier user interface
+
+\vfill
+
+- **Backends:** TensorFlow, Theano
+- **NEW:** Microsoft Cognitive Toolkit (CNTK) added as backend
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=0.20\textwidth]{figures/theano.png}\hspace{5mm}%
+\includegraphics[width=0.20\textwidth]{figures/tensorflow.png}\hspace{5mm}%
+\includegraphics[width=0.20\textwidth]{figures/cntk.png}\hspace{5mm}%
+\includegraphics[width=0.20\textwidth]{figures/keras.jpg}%
+\end{figure}
+
+## Why Keras and not one of the other wrappers?
+
+- There are lot of alternatives: TFLearn, Lasagne, ...
+- None of them are as **popular** as Keras!
+- Will be **tightly integrated into TensorFlow** and officially supported by Google.
+- Looks like a **safe future for Keras**!
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/github_keras.png}
+\end{figure}
+
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/keras_statement.png}
+\end{figure}
+
+- Read the full story here: [Link](https://github.com/fchollet/keras/issues/5050)
+
+## Let's start!
+
+- **How does the tutorial works?** You have the choice:
+    1. You can just listen and learn from the code examples on the slides.
+    2. You can follow along with the examples on your own laptop.
+- **But** you'll learn most by taking the examples as starting point and play around at home.
+
+\vfill
+
+\normalsize
+
+**Download all files:**
+
+\small
+
+```bash
+git clone https://github.com/stwunsch/fermilab_keras_workshop
+```
+
+\vfill
+
+\normalsize
+
+**Set up the Python virtual environment:**
+
+\small
+
+```bash
+cd fermilab_keras_workshop
+bash init_virtualenv.sh
+```
+
+\vfill
+
+\normalsize
+
+**Enable the Python virtual environment:**
+
+\small
+
+```bash
+# This has to be done in every new shell!
+source py2_virtualenv/bin/activate
+```
+
+# Keras Basics
+
+## Configure Keras Backend
+
+- Two ways to configure Keras backend (Theano, TensorFlow or CNTK):
+    1. Using **environment variables**
+    2. Using **Keras config file** in `$HOME/.keras/keras.json`
+
+\vfill
+
+**Example setup using environment variables**:
+
+
+\vfill
+
+\footnotesize
+
+**Terminal:**
+
+\tiny
+
+```bash
+export KERAS_BACKEND=tensorflow
+python your_script_using_keras.py
+```
+
+\vfill
+
+\footnotesize
+
+**Inside a Python script:**
+
+\tiny
+
+```python
+# Select TensorFlow as backend for Keras using enviroment variable `KERAS_BACKEND`
+from os import environ
+environ['KERAS_BACKEND'] = 'tensorflow'
+```
+
+\normalsize
+
+\vfill
+
+**Example Keras config using TensorFlow as backend**:
+
+\tiny
+
+```bash
+$ cat $HOME/.keras/keras.json
+{
+    "image_dim_ordering": "th",
+    "epsilon": 1e-07,
+    "floatx": "float32",
+    "backend": "tensorflow"
+}
+```
+
+## Example Using the Iris Dataset
+
+- Next slides will introduce the basics of Keras using the example **`fermilab_keras_tutorial/keras/iris/train.py`**.
+
+\vfill
+- **Iris dataset:** Classify flowers based on their proportions
+- **4 features:** Sepal length/width and petal length/wdith
+- **3 targets** (flower types)**:** Setosa, Versicolour and Virginica
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=0.3\textwidth]{figures/iris.png}
+\end{figure}
+
+## Model Definition
+
+- **Two types of models**: `Sequential` and the functional API
+    - `Sequential`: Simply stacks all layers
+    - Funktional API: You can do everything you want (multiple inputs, multiple outputs, ...).
+
+\tiny
+
+```python
+# Define model
+model = Sequential()
+
+model.add(
+    Dense(
+        8, # Number of nodes
+        kernel_initializer="glorot_normal", # Initialization
+        activation="relu", # Activation
+        input_dim=(4,) # Shape of inputs, only needed for the first layer!
+    )
+)
+
+model.add(
+    Dense(
+        3, # Number of output nodes has to match number of targets
+        kernel_initializer="glorot_uniform",
+        activation="softmax" # Softmax enables an interpretation of the outputs as probabilities
+    )
+)
+```
+
+## Model Summary
+
+- **`model.summary()`** prints a description of the model
+- **Extremely useful** to keep track of the number of free parameters
+
+\vfill
+
+\footnotesize
+
+```
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_1 (Dense)              (None, 8)                 40        
+_________________________________________________________________
+dense_2 (Dense)              (None, 3)                 27        
+=================================================================
+Total params: 67
+Trainable params: 67
+Non-trainable params: 0
+_________________________________________________________________
+```
+
+## Define Loss Function, Optimizer, Validation Metrics...
+
+- Everything is set in a single function, called the **`compile`** step of the model.
+
+- Validation is performed after each training epoch (next slides).
+
+\vfill
+
+```python
+# Set loss, optimizer and evaluation metrics
+model.compile(
+        loss="categorical_crossentropy", # Loss function
+        optimizer=SGD(lr=0.10), # Optimizer algorithm
+        metrics=["accuracy",]) # Validation metric(s)
+```
+
+## Data Preprocessing
+
+- Some preprocessing steps are included in Keras, but mainly for text and image inputs.
+- **Better option:** Using `scikit-learn` package ([\color{blue}{Link} to `preprocessing` module](http://scikit-learn.org/stable/modules/preprocessing.html))
+
+\vfill
+
+- **Single input** (4 features)**:** [5.1, 3.5, 1.4, 0.2]
+    - Needs to be scaled to the order of 1 to fit the activation function.
+
+- **Single output** (3 classes)**:** [1 0 0]
+
+\vfill
+
+- **Common preprocessing:** Standardization of inputs \
+    $\rightarrow$ Operation: $\frac{\text{input}-\text{mean}}{\text{standard deviation}}$
+
+\vfill
+
+\small
+
+```python
+# Set up preprocessing
+from sklearn.preprocessing import StandardScaler
+preprocessing = StandardScaler()
+preprocessing.fit(inputs)
+inputs = preprocessing.transform(inputs)
+```
+
+## Training
+
+- Training is again a single call of the `model` object, called **`fit`**.
+
+\vfill
+
+\footnotesize
+
+```python
+# Train
+model.fit(
+    inputs, # Preprocessed inputs
+    targets_onehot, # Targets in 'one hot' shape
+    batch_size=20, # Number of inputs used for
+                   # a single gradient step
+    epochs=10) # Number of cycles of the full
+               # dataset used for training
+```
+
+\vfill
+
+\normalsize
+
+**That's it for the training!**
+
+## Training (2)
+
+\tiny
+
+```
+Epoch 1/10
+150/150 [==============================] - 0s 998us/step - loss: 1.1936 - acc: 0.2533
+Epoch 2/10
+150/150 [==============================] - 0s 44us/step - loss: 0.9904 - acc: 0.5867
+Epoch 3/10
+150/150 [==============================] - 0s 61us/step - loss: 0.8257 - acc: 0.7333
+Epoch 4/10
+150/150 [==============================] - 0s 51us/step - loss: 0.6769 - acc: 0.8267
+Epoch 5/10
+150/150 [==============================] - 0s 49us/step - loss: 0.5449 - acc: 0.8933
+Epoch 6/10
+150/150 [==============================] - 0s 53us/step - loss: 0.4384 - acc: 0.9267
+Epoch 7/10
+150/150 [==============================] - 0s 47us/step - loss: 0.3648 - acc: 0.9200
+Epoch 8/10
+150/150 [==============================] - 0s 46us/step - loss: 0.3150 - acc: 0.9600
+Epoch 9/10
+150/150 [==============================] - 0s 54us/step - loss: 0.2809 - acc: 0.9267
+Epoch 10/10
+150/150 [==============================] - 0s 49us/step - loss: 0.2547 - acc: 0.9200
+```
+
+## Save and Apply the Trained Model
+
+**Save model:**
+
+- Models are **saved as `HDF5` files**: `model.save("model.h5")`
+    - Combines description of weights and architecture in a single file
+- **Alternative**: Store weights and architecture separately
+    - Store weights: `model.save_weights("model_weights.h5")`
+    - Store architecture: `json_dict = model.to_json()`
+
+\vfill
+
+**Load model:**
+
+```python
+from keras.models import load_model
+model = load_model("model.h5")
+```
+
+\vfill
+
+**Apply model:**
+
+```python
+predictions = model.predict(inputs)
+```
+
+## Wrap-Up
+
+\footnotesize
+
+**Training:**
+
+\tiny
+
+```python
+# Load iris dataset
+# ...
+
+# Model definition
+model = Sequential()
+model.add(Dense(8, kernel_initializer="glorot_normal", activation="relu", input_dim=(4,)))
+model.add(Dense(3, kernel_initializer="glorot_uniform", activation="softmax"))
+
+# Preprocessing
+preprocessing = StandardScaler().fit(inputs)
+inputs = preprocessing.transform(inputs)
+
+# Training
+model.fit(inputs, targets_onehot, batch_size=20, epochs=10)
+
+# Save model
+model.save("model.h5")
+```
+
+\vfill
+
+\footnotesize
+
+**Application:**
+
+\tiny
+
+```python
+# Load model
+model = load_model("model.h5")
+
+# Application
+predictions = model.predict(inputs)
+```
+
+\vfill
+
+\normalsize
+
+**That's a full training/application workflow in less than ten lines of code!**
+
+## Available Layers, Losses, Optimizers, ...
+
+- There's **everything you can imagine**, and it's **well documented**.
+- Possible to **define own layers** and **custom metrics** in Python!
+- Check out: [www.keras.io](www.keras.io)
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{figures/keras_doc.png}
+\end{figure}
+
+# Advanced Usage of Keras
+
+## Example Using the MNIST Dataset
+
+- Example in the repository: **`fermilab_keras_tutorial/keras/mnist/train.py`**
+
+\vfill
+
+- **MNIST dataset?**
+    - **Task:** Predict the number on an image of a handwritten digit
+    - **Official website:** Yann LeCun's website [(Link)](http://yann.lecun.com/exdb/mnist/)
+    - Database of **70000 images of handwritten digits**
+    - 28x28 pixels in greyscale as input, digit as label
+
+\vfill
+
+\begin{figure}
+\centering
+\includegraphics[width=0.1\textwidth]{figures/example_mnist_0.png}%
+\hspace{1mm}%
+\includegraphics[width=0.1\textwidth]{figures/example_mnist_1.png}%
+\hspace{1mm}%
+\includegraphics[width=0.1\textwidth]{figures/example_mnist_2.png}%
+\hspace{1mm}%
+\includegraphics[width=0.1\textwidth]{figures/example_mnist_3.png}%
+\hspace{1mm}%
+\includegraphics[width=0.1\textwidth]{figures/example_mnist_4.png}%
+\hspace{1mm}%
+\includegraphics[width=0.1\textwidth]{figures/example_mnist_5.png}
+\end{figure}
+
+\vfill
+
+\normalsize
+
+- **Data format:**
+    - **Inputs:** 28x28 matrix with floats in [0, 1]
+    - **Target:** One-hot encoded digits, e.g., 2 $\rightarrow$ [0 0 1 0 0 0 0 0 0 0]
+
+## Short Introduction to Convolutional Layers
+
+\begin{figure}
+\centering
+\includegraphics[width=0.25\textwidth]{figures/example_mnist_1.png}\hspace{10mm}%
+\includegraphics[width=0.35\textwidth]{figures/convolution.png}
+\end{figure}
+
+\vfill
+
+\footnotesize
+
+- **Kernel:** Locally connected dense layer
+- **Convolution:** Kernel moves similar to a sliding window over the image
+- **Feature map:** Output "image" after application of the kernel
+
+\vfill
+
+\tiny
+
+```python
+model = Sequential()
+
+model.add(
+    Conv2D(
+        4, # Number of kernels/feature maps
+        (3, # column size of sliding window used for convolution
+        3), # row size of sliding window used for convolution
+        activation="relu" # Rectified linear unit activation
+    )
+)
+```
+
+## Model Definition
+
+\footnotesize
+
+**`fermilab_keras_tutorial/keras/mnist/train.py`:**
+
+\tiny
+
+```python
+model = Sequential()
+
+# First hidden layer
+model.add(
+    Conv2D(
+        4, # Number of output filters or so-called feature maps
+        (3, # column size of sliding window used for convolution
+        3), # row size of sliding window used for convolution
+        activation="relu", # Rectified linear unit activation
+        input_shape=(28,28,1) # 28x28 image with 1 color channel
+    )
+)
+
+# All other hidden layers
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Flatten())
+model.add(Dense(16, activation="relu"))
+model.add(Dropout(0.5))
+
+# Output layer
+model.add(Dense(10, activation="softmax"))
+
+# Print model summary
+model.summary()
+
+# Compile model
+model.compile(loss="categorical_crossentropy",
+        optimizer=Adam(),
+        metrics=["accuracy"])
+```
+
+## Model Summary
+
+- Detailed summary of model complexity with `model.summary()`
+
+\vfill
+
+\tiny
+
+```
+Layer (type)                 Output Shape              Param #
+=================================================================
+conv2d_1 (Conv2D)            (None, 26, 26, 4)         40
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 13, 13, 4)         0
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 676)               0
+_________________________________________________________________
+dense_1 (Dense)              (None, 16)                10832
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 16)                0
+_________________________________________________________________
+dense_2 (Dense)              (None, 10)                170
+=================================================================
+Total params: 11,042
+Trainable params: 11,042
+Non-trainable params: 0
+_________________________________________________________________
+```
+
+## Training With Callbacks
+
+- **Callbacks** are executed before and/or after each training epoch.
+- Numerous **predefined** callbacks are available, **custom** callbacks can be implemented.
+
+\vfill
+
+\footnotesize
+
+**Definition of model-checkpoint callback:**
+
+```python
+# Callback for model checkpoints
+checkpoint = ModelCheckpoint(
+        filepath="mnist_example.h5", # Output similar to
+                                     # model.save("mnist_example.h5")
+        save_best_only=True) # Save only model with smallest loss
+```
+
+\vfill
+
+**Register callback:**
+
+\tiny
+
+```python
+model.fit(x_train, y_train, # Training data
+        batch_size=100, # Batch size
+        epochs=10, # Number of training epochs
+        validation_split=0.2, # Use 20% of the train dataset
+                              # for validation
+        callbacks=[checkpoint]) # Register callbacks
+```
+
+## Training With Callbacks (2)
+
+\begin{columns}
+\begin{column}{0.7\textwidth}
+
+\begin{itemize}
+    \item Commonly used callbacks for improvement, debugging and validation of the training progress are implemented, e.g., \texttt{\textbf{EarlyStopping}}.
+    \item Powerful tool: \texttt{\textbf{TensorBoard}} in combination with TensorFlow
+    \item Custom callback: \texttt{\textbf{LambdaCallback}} or write callback class extending base class \texttt{keras.callbacks.Callback}
+\end{itemize}
+
+\end{column}
+\begin{column}{0.3\textwidth}
+
+\begin{figure}
+\centering
+\includegraphics[width=1.00\textwidth]{figures/callbacks.png}
+\end{figure}
+
+\end{column}
+\end{columns}
+
+## Advanced Training Methods
+
+- The call `model.fit(inputs, targets, ...)` expects all `inputs` and `targets` to be already loaded in memory.\
+$\rightarrow$ Physics applications have often data on Gigabyte to Terabyte scale!
+
+\vfill
+
+**These methods can be used to train on data that does not fit in memory.**
+
+\vfill
+
+- Training on **single batches**, performs a single gradient step:
+
+\small
+
+```python
+model.train_on_batch(inputs, targets, ...)
+```
+
+\vfill
+
+\normalsize
+
+- Training with data from a **Python generator**:
+
+\small
+
+```python
+def generator_function():
+    while True:
+        yield custom_load_next_batch()
+
+model.fit_generator(generator_function, ...)
+```
 
 # Backup
 
@@ -383,7 +1020,7 @@ The workshop has three parts:
 - There are lot of alternatives: TFLearn, Lasagne, ...
 - None of them are as **popular** as Keras!
 - Will be **tightly integrated into TensorFlow** and officially supported by Google.
-- Look like a **safe future for Keras**!
+- Looks like a **safe future for Keras**!
 
 \vfill
 
