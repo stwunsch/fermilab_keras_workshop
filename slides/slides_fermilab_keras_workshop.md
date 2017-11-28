@@ -23,14 +23,16 @@
 
 ## Outline
 
+\small
+
 The workshop has these parts:
 
 1. Brief introduction to **neural networks**
 2. Brief introduction to **computational graphs** with TensorFlow
 3. Introduction to **Keras**
-4. **Useful tools** in combination with Keras
+4. **Useful tools** in combination with Keras, e.g., TMVA Keras interface
 
-- In parts 3 and 4, you have to possibility to follow along with the examples on you laptop.
+- In parts 3 and 4, you have to possibility to follow along with the examples on your laptop.
 
 \vfill
 
@@ -820,11 +822,6 @@ model.add(Dense(10, activation="softmax"))
 
 # Print model summary
 model.summary()
-
-# Compile model
-model.compile(loss="categorical_crossentropy",
-        optimizer=Adam(),
-        metrics=["accuracy"])
 ```
 
 ## Model Summary
@@ -856,6 +853,47 @@ Non-trainable params: 0
 _________________________________________________________________
 ```
 
+## Training With Validation Metrics
+
+- Validation metrics are evaluated after each training epoch.
+- In `compile` step, multiple **predefined validation metrics** can be booked, e.g., `accuracy`.
+- **Custom metrics** are possible.
+
+\vfill
+
+\footnotesize
+
+**Booking a predefined metric:**
+
+\tiny
+
+```python
+# Compile model
+model.compile(loss="categorical_crossentropy",
+        optimizer=Adam(),
+        metrics=["accuracy"])
+```
+
+\vfill
+
+\footnotesize
+
+**Training with validation data:**
+
+\tiny
+
+```python
+model.fit(inputs, targets, validation_split=0.2) # Use 20% of the data for validation
+```
+
+```
+Epoch 1/10
+30000/30000 [==============================] - 6s 215us/step - loss: 0.8095 - acc: 0.7565
+- val_loss: 0.3180 - val_acc: 0.9085
+Epoch 2/10
+...
+```
+
 ## Training With Callbacks
 
 - **Callbacks** are executed before and/or after each training epoch.
@@ -867,11 +905,12 @@ _________________________________________________________________
 
 **Definition of model-checkpoint callback:**
 
+\tiny
+
 ```python
 # Callback for model checkpoints
 checkpoint = ModelCheckpoint(
-        filepath="mnist_example.h5", # Output similar to
-                                     # model.save("mnist_example.h5")
+        filepath="mnist_example.h5", # Output similar to model.save("mnist_example.h5")
         save_best_only=True) # Save only model with smallest loss
 ```
 
@@ -885,7 +924,7 @@ checkpoint = ModelCheckpoint(
 model.fit(x_train, y_train, # Training data
         batch_size=100, # Batch size
         epochs=10, # Number of training epochs
-        validation_split=0.2, # Use 20% of the train dataset
+        validation_split=0.5, # Use 50% of the train dataset
                               # for validation
         callbacks=[checkpoint]) # Register callbacks
 ```
@@ -912,7 +951,7 @@ model.fit(x_train, y_train, # Training data
 \end{column}
 \end{columns}
 
-## Advanced Training Methods
+## Advanced Training Methods for Big Data
 
 - The call `model.fit(inputs, targets, ...)` expects all `inputs` and `targets` to be already loaded in memory.\
 $\rightarrow$ Physics applications have often data on Gigabyte to Terabyte scale!
