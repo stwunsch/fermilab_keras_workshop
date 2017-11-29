@@ -815,7 +815,6 @@ model.add(
 model.add(MaxPooling2D(pool_size=(2,2)))
 model.add(Flatten())
 model.add(Dense(16, activation="relu"))
-model.add(Dropout(0.5))
 
 # Output layer
 model.add(Dense(10, activation="softmax"))
@@ -833,19 +832,17 @@ model.summary()
 \tiny
 
 ```
-Layer (type)                 Output Shape              Param #
+Layer (type)                 Output Shape              Param #   
 =================================================================
-conv2d_1 (Conv2D)            (None, 26, 26, 4)         40
+conv2d_1 (Conv2D)            (None, 26, 26, 4)         40        
 _________________________________________________________________
-max_pooling2d_1 (MaxPooling2 (None, 13, 13, 4)         0
+max_pooling2d_1 (MaxPooling2 (None, 13, 13, 4)         0         
 _________________________________________________________________
-flatten_1 (Flatten)          (None, 676)               0
+flatten_1 (Flatten)          (None, 676)               0         
 _________________________________________________________________
-dense_1 (Dense)              (None, 16)                10832
+dense_1 (Dense)              (None, 16)                10832     
 _________________________________________________________________
-dropout_1 (Dropout)          (None, 16)                0
-_________________________________________________________________
-dense_2 (Dense)              (None, 10)                170
+dense_2 (Dense)              (None, 10)                170       
 =================================================================
 Total params: 11,042
 Trainable params: 11,042
@@ -916,16 +913,16 @@ checkpoint = ModelCheckpoint(
 
 \vfill
 
+\footnotesize
+
 **Register callback:**
 
 \tiny
 
 ```python
-model.fit(x_train, y_train, # Training data
+model.fit(inputs, targets, # Training data
         batch_size=100, # Batch size
         epochs=10, # Number of training epochs
-        validation_split=0.5, # Use 50% of the train dataset
-                              # for validation
         callbacks=[checkpoint]) # Register callbacks
 ```
 
@@ -1042,7 +1039,7 @@ Predict labels for images:
     keras/mnist/example_images/example_input_5.png : 1
     keras/mnist/example_images/example_input_6.png : 4
     keras/mnist/example_images/example_input_7.png : 9
-    keras/mnist/example_images/example_input_8.png : 8
+    keras/mnist/example_images/example_input_8.png : 6
     keras/mnist/example_images/example_input_9.png : 9
 ```
 
