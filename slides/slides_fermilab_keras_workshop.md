@@ -1,7 +1,7 @@
 % Fermilab Keras Workshop
 % Stefan Wunsch \
     stefan.wunsch@cern.ch
-% November 30, 2017
+% December 8, 2017
 
 ## What is this talk about?
 
